@@ -1,9 +1,9 @@
+*{
+  font-family: 'Roboto', sans-serif;
+}
+
 body{
   background-color: #0077B6;
   align-content: center;
   align-items: center;
-}
-
-.main{
-  background-color:red;
 }

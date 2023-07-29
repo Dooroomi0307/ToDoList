@@ -1,31 +1,25 @@
 /* Landing.css */
-body{
-  display:flex;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
-  height: 80vh;
-  margin: 0;
-  padding: 0;
-}
 
 .landing-container {
+  display:flex;
   background-color: #00B4D8;
   padding: 20px;
   border-radius: 10px;
+  height: 80vh;
+  margin: 0;
+  padding: 0;
   color: white;
   text-align: center;
   align-content: center;
   align-items: center;
   justify-content: center;
-  
+  margin-top:60px;
 }
 
-.group-input {
+.group-input-container{
   padding: 20px;
   margin-top: 50px;
   justify-content: center;
-
 }
 
 .group-input[type="text"] {
@@ -33,7 +27,6 @@ body{
   border: none;
   border-radius: 4px;
   font-size: 16px;
-  margin-right: 10px;
   text-align: center;
 }
 
@@ -95,4 +88,5 @@ body{
   height: auto;
   margin-top: 30px;
   margin-bottom: 50px;
+  margin-right: 50px;
 }

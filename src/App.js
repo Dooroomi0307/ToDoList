@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom"
 import {useRef, useEffect, useState} from 'react'
 import Nav from "./elements/Nav"
 import Landing from "./pages/Landing"
+import TodoForm from "./pages/TodoForm"
 import Splash from "./pages/Splash"
 import "./elements/App.css"
 
@@ -27,6 +28,7 @@ function App() {
           <div className="container">
             <Routes>
               <Route path="" element={<Landing />} />
+              <Route path="/todo/:groupID" component={TodoForm}/>
             </Routes>
           </div>
         </>

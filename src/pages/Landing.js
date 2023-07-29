@@ -67,27 +67,33 @@ const Landing = () => {
 
   return (
     <div className="landing-container">
+      <div className="todo-container">
       {!showTodoForm && <img src={Logo} alt="Logo" className="logo" />}
-
+      
       {showTodoForm ? (
         <TodoForm
           groupID={groupID}
           onClose={() => setShowTodoForm(false)}
         />
       ) : (
-        <div className="group-input">
-          <input
+        <div className="group-input-container">
+          <input className="group-input"
             type="text"
             value={groupID}
             onChange={(e) => setGroupID(e.target.value)}
             placeholder="Enter Group ID"
           />
           <br />
-          <button className="create-button" onClick={handleCreateGroup}>Create Group</button>
-          <button className="join-button" onClick={handleJoinGroup}>Join Group</button>
+          <button className="create-button" onClick={handleCreateGroup}>
+              Create Group
+            </button>
+            <button className="join-button" onClick={handleJoinGroup}>
+              Join Group
+            </button>
           <p className="group-msg">{message}</p>
         </div>
       )}
+      </div>
     </div>
   );
 };

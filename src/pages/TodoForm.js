@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react"
-import db from "../firebase"
-import "../elements/TodoForm.css"
-import { CgMathPlus,CgTrash, CgPen, CgHomeAlt} from "react-icons/cg";
+import React, { useState, useEffect } from "react";
+import db from "../firebase";
+import "../elements/TodoForm.css";
+import { CgMathPlus, CgTrash, CgPen, CgHomeAlt } from "react-icons/cg";
 
 const TodoForm = ({ groupID, onClose }) => {
-  //manage state in a functional component
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
   const [message, setMessage] = useState("");
@@ -27,13 +26,12 @@ const TodoForm = ({ groupID, onClose }) => {
     return () => subscribe();
   }, [groupID]);
 
-  //this function handles adding task
   const handleAddTask = () => {
     if (groupID && task) {
       db.collection("groups")
         .doc(groupID)
         .collection("tasks")
-        .add({ task })
+        .add({ task, completed: false })
         .then(() => {
           setTask("");
         })
@@ -45,7 +43,6 @@ const TodoForm = ({ groupID, onClose }) => {
     }
   };
 
-  //this function handles editing task
   const handleEditTask = (taskId, newTask) => {
     db.collection("groups")
       .doc(groupID)
@@ -53,59 +50,90 @@ const TodoForm = ({ groupID, onClose }) => {
       .doc(taskId)
       .update({ task: newTask })
       .then(() => {
-        setEditTaskId(null); // Clear the edit mode after successful update
+        setEditTaskId(null);
       })
       .catch((error) => {
         setMessage(`Error updating task: ${error.message}`);
       });
   };
 
-  //this function handles deleting task
   const handleDeleteTask = (taskId) => {
     db.collection("groups")
       .doc(groupID)
       .collection("tasks")
       .doc(taskId)
       .delete()
-      .then(() => {
-      })
       .catch((error) => {
         setMessage(`Error deleting task: ${error.message}`);
       });
   };
 
-  const handleGoBack = () => {
-    onClose(); // Close the current TodoForm (go back to Landing component)
+  const handleTaskCompletion = (taskId, completed) => {
+    // Toggle the completion status
+    const updatedTasks = tasks.map((taskData) =>
+      taskData.id === taskId ? { ...taskData, completed: !completed } : taskData
+    );
+
+    setTasks(updatedTasks);
+
+    // Update the completion status in the database
+    db.collection("groups")
+      .doc(groupID)
+      .collection("tasks")
+      .doc(taskId)
+      .update({ completed: !completed })
+      .catch((error) => {
+        setMessage(`Error updating task completion status: ${error.message}`);
+      });
   };
 
-  
+  const handleGoBack = () => {
+    onClose();
+  };
 
   return (
     <div className="page-container">
-      {/* The "page-container" wraps the whole page */}
-      <button className="home-button" onClick={handleGoBack}><CgHomeAlt/></button>
+      <button className="home-button" onClick={handleGoBack}>
+        <CgHomeAlt size={30} />
+      </button>
       <div className="main-container">
-          <div className="group-name-container">
-            <h2 className="group-name">{groupID}</h2>
+        <div className="group-name-container">
+          <h2 className="group-name">{groupID}</h2>
+        </div>
+
+        <div className="task-input-container">
+          <div className="input-wrapper">
+            <input
+              className="task-input"
+              type="text"
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
+              placeholder="Enter Task"
+            />
+            <button className="add-button" onClick={handleAddTask}>
+              <CgMathPlus size={20} />
+            </button>
           </div>
-          
-            <div className="search-container">
-          <input
-            type="text"
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            placeholder="Enter Task"
-          />
-          <button onClick={handleAddTask}>Add Task</button>
           <p>{message}</p>
-          </div>
-          <div className="todo-container">
-          <h3>Tasks:</h3>
+        </div>
+        <div className="todo-container">
           {tasks.length > 0 ? (
-            <ul>
+            <ul className="single-todo">
               {tasks.map((taskData) => (
-                <li key={taskData.id}>
-                  {editTaskId === taskData.id ? ( // Show input box if editing this task
+                <li
+                  key={taskData.id}
+                  className={taskData.completed ? "completed-task" : ""}
+                >
+                  <div className="task-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={taskData.completed}
+                      onChange={() =>
+                        handleTaskCompletion(taskData.id, taskData.completed)
+                      }
+                    />
+                  </div>
+                  {editTaskId === taskData.id ? (
                     <>
                       <input
                         type="text"
@@ -120,9 +148,27 @@ const TodoForm = ({ groupID, onClose }) => {
                     </>
                   ) : (
                     <>
-                      {taskData.task}{" "}
-                      <button className="edit-button" onClick={() => setEditTaskId(taskData.id)}><CgPen /></button>{" "}
-                      <button className="delete-button" onClick={() => handleDeleteTask(taskData.id)}><CgTrash /></button>
+                      <div className="task-text">
+                        {taskData.completed ? (
+                          <del>{taskData.task}</del>
+                        ) : (
+                          taskData.task
+                        )}
+                      </div>
+                      <div className="button-group">
+                        <button
+                          className="edit-button"
+                          onClick={() => setEditTaskId(taskData.id)}
+                        >
+                          <CgPen size={15} />
+                        </button>{" "}
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDeleteTask(taskData.id)}
+                        >
+                          <CgTrash size={15} />
+                        </button>
+                      </div>
                     </>
                   )}
                 </li>
@@ -135,7 +181,6 @@ const TodoForm = ({ groupID, onClose }) => {
       </div>
     </div>
   );
-  
 };
 
 export default TodoForm;
