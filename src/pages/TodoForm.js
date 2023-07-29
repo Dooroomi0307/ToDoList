@@ -91,6 +91,12 @@ const TodoForm = ({ groupID, onClose }) => {
     onClose();
   };
 
+  // Sort tasks based on completion status (complete tasks go to the bottom)
+  const sortedTasks = [
+    ...tasks.filter((taskData) => !taskData.completed),
+    ...tasks.filter((taskData) => taskData.completed),
+  ];
+
   return (
     <div className="page-container">
       <button className="home-button" onClick={handleGoBack}>
@@ -117,9 +123,9 @@ const TodoForm = ({ groupID, onClose }) => {
           <p>{message}</p>
         </div>
         <div className="todo-container">
-          {tasks.length > 0 ? (
+          {sortedTasks.length > 0 ? (
             <ul className="single-todo">
-              {tasks.map((taskData) => (
+              {sortedTasks.map((taskData) => (
                 <li
                   key={taskData.id}
                   className={taskData.completed ? "completed-task" : ""}
