@@ -1,49 +1,43 @@
-.group-name{
-  
+.group-name {
+
 }
 
-.todo-container{
+.todo-container {
   max-height: 1500px;
   overflow-y: auto;
-  
 }
 
-.todo-container ul{
+.todo-container ul {
   text-align: center;
   list-style: none;
-  direction:flex;
-  flex-direction: column;
   padding: 0;
   margin: 0;
-  margin-top:50px;
+  margin-top: 50px;
 }
 
 .todo-container::-webkit-scrollbar {
-  width: 8px; 
+  width: 8px;
 }
 
 .todo-container::-webkit-scrollbar-track {
-  background-color: #f1f1f1; 
+  background-color: #f1f1f1;
 }
-
 
 .todo-container::-webkit-scrollbar-thumb {
-  background-color: #888; 
-  border-radius: 4px; 
+  background-color: #888;
+  border-radius: 4px;
 }
-
 
 .todo-container::-webkit-scrollbar-thumb:hover {
-  background-color: #555; 
+  background-color: #555;
 }
 
-.single-todo li{
-  background-color:#1b5bad;
+.single-todo li {
+  display: flex; 
+  background-color: #1b5bad;
   border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
+  align-items: center; 
+  padding: 8px 15px; 
   margin-bottom: 5px;
 }
 
@@ -51,23 +45,24 @@
   background-color: #4d5969;
 }
 
-
 .main-container {
   margin: 20px auto;
   max-width: 1200px;
-  margin-right:100px;
+  margin-right: 100px;
 }
 
-.task-text{
+.task-text {
+  text-align: left;
   margin-left: 15px;
+  flex: 1;
 }
 
-.button-group{
-  margin-left: 100px;
-  margin-right: 15px;
+.button-group {
+  margin-left: auto; 
+  margin-right: 15px; 
 }
 
-.home-button{
+.home-button {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -79,7 +74,7 @@
   cursor: pointer;
 }
 
-.add-button{
+.add-button {
   background-color: #0077b6;
   color: #ffffff;
   border: none;
@@ -87,16 +82,16 @@
   padding: 6px;
   margin-left: 1px;
   cursor: pointer;
-  display: inline-block; 
-  vertical-align: middle
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .add-button:hover {
   background-color: #005a8a;
- 
 }
 
-.input-wrapper{
+.input-wrapper {
+  
   position: sticky;
   top: 0;
   padding: 10px;
@@ -105,15 +100,18 @@
   justify-content: space-between;
 }
 
-.task-input-container{
-  align-items: center; 
-  justify-content: center; 
+.task-input-container {
+  
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
 }
 
-
-.task-input{
+.task-input {
   padding: 20px;
   justify-content: center;
+  width: 300px;
 }
 
 .task-input[type="text"] {
@@ -125,10 +123,10 @@
   text-align: center;
 }
 
-.task-checkbox{
+.task-checkbox {
   border: none;
-  border-radius:10px;
-  margin-left:10px;
+  border-radius: 10px;
+  margin-left: 10px;
 }
 
 .edit-button {
@@ -136,6 +134,7 @@
   color: #ffffff;
   border: none;
   border-radius: 4px;
+  margin-right: 5px;
   padding: 6px;
   cursor: pointer;
 }
@@ -157,3 +156,29 @@
   background-color: #b6202f;
 }
 
+.note-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.note-save-button {
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px;
+  margin-left: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.note-save-button:hover {
+  background-color: #0061c9;
+}
+
+.note-input {
+  height: 100px; 
+  resize: none; 
+}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import db from "../firebase";
 import "../elements/TodoForm.css";
 import { CgMathPlus, CgTrash, CgPen, CgHomeAlt } from "react-icons/cg";
+import { BiSolidSave } from "react-icons/bi";
 
 const TodoForm = ({ groupID, onClose }) => {
   const [task, setTask] = useState("");
@@ -9,6 +10,8 @@ const TodoForm = ({ groupID, onClose }) => {
   const [message, setMessage] = useState("");
   const [editTaskId, setEditTaskId] = useState(null);
   const [editedTask, setEditedTask] = useState("");
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [note, setNote] = useState("");
 
   useEffect(() => {
     const subscribe = db
@@ -31,7 +34,7 @@ const TodoForm = ({ groupID, onClose }) => {
       db.collection("groups")
         .doc(groupID)
         .collection("tasks")
-        .add({ task, completed: false })
+        .add({ task, completed: false, note: "" }) // Initialize note as an empty string
         .then(() => {
           setTask("");
         })
@@ -69,14 +72,12 @@ const TodoForm = ({ groupID, onClose }) => {
   };
 
   const handleTaskCompletion = (taskId, completed) => {
-    // Toggle the completion status
     const updatedTasks = tasks.map((taskData) =>
       taskData.id === taskId ? { ...taskData, completed: !completed } : taskData
     );
 
     setTasks(updatedTasks);
 
-    // Update the completion status in the database
     db.collection("groups")
       .doc(groupID)
       .collection("tasks")
@@ -91,7 +92,28 @@ const TodoForm = ({ groupID, onClose }) => {
     onClose();
   };
 
-  // Sort tasks based on completion status (complete tasks go to the bottom)
+  const handleTaskClick = (taskId, event) => {
+    if (event.target.classList.contains('task-text')) {
+      setSelectedTaskId(taskId);
+      const selectedTask = tasks.find((taskData) => taskData.id === taskId);
+      setNote(selectedTask.note || "");
+    }
+  };
+
+  const handleSaveNote = () => {
+    db.collection("groups")
+      .doc(groupID)
+      .collection("tasks")
+      .doc(selectedTaskId)
+      .update({ note })
+      .then(() => {
+        setSelectedTaskId(null);
+      })
+      .catch((error) => {
+        setMessage(`Error saving note: ${error.message}`);
+      });
+  };
+
   const sortedTasks = [
     ...tasks.filter((taskData) => !taskData.completed),
     ...tasks.filter((taskData) => taskData.completed),
@@ -122,6 +144,7 @@ const TodoForm = ({ groupID, onClose }) => {
           </div>
           <p>{message}</p>
         </div>
+
         <div className="todo-container">
           {sortedTasks.length > 0 ? (
             <ul className="single-todo">
@@ -129,64 +152,88 @@ const TodoForm = ({ groupID, onClose }) => {
                 <li
                   key={taskData.id}
                   className={taskData.completed ? "completed-task" : ""}
+                  onClick={(event) => handleTaskClick(taskData.id, event)}
                 >
                   <div className="task-checkbox">
                     <input
                       type="checkbox"
                       checked={taskData.completed}
-                      onChange={() =>
-                        handleTaskCompletion(taskData.id, taskData.completed)
-                      }
+                      onChange={() => handleTaskCompletion(taskData.id, taskData.completed)}
                     />
                   </div>
-                  {editTaskId === taskData.id ? (
-                    <>
+                  <div className="task-text">
+                    {editTaskId === taskData.id ? (
                       <input
                         type="text"
                         value={editedTask}
                         onChange={(e) => setEditedTask(e.target.value)}
+                        onBlur={() => handleEditTask(taskData.id, editedTask)}
+                        autoFocus
                       />
+                    ) : taskData.completed ? (
+                      <del>{taskData.task}</del>
+                    ) : (
+                      taskData.task
+                    )}
+                  </div>
+                  {taskData.completed ? (
+                    <div className="button-group">
+                      {/* Keep the delete button for completed tasks */}
                       <button
-                        onClick={() => handleEditTask(taskData.id, editedTask)}
+                        className="delete-button"
+                        onClick={() => handleDeleteTask(taskData.id)}
                       >
-                        Save
+                        <CgTrash size={15} />
                       </button>
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      <div className="task-text">
-                        {taskData.completed ? (
-                          <del>{taskData.task}</del>
-                        ) : (
-                          taskData.task
-                        )}
-                      </div>
-                      <div className="button-group">
-                        <button
-                          className="edit-button"
-                          onClick={() => setEditTaskId(taskData.id)}
-                        >
-                          <CgPen size={15} />
-                        </button>{" "}
-                        <button
-                          className="delete-button"
-                          onClick={() => handleDeleteTask(taskData.id)}
-                        >
-                          <CgTrash size={15} />
-                        </button>
-                      </div>
-                    </>
+                    <div className="button-group">
+                      {editTaskId === taskData.id ? (
+                        <></>
+                      ) : (
+                        <>
+                          <button
+                            className="edit-button"
+                            onClick={() => {
+                              setEditTaskId(taskData.id);
+                              setEditedTask(taskData.task);
+                            }}
+                          >
+                            <CgPen size={15} />
+                          </button>
+                          <button
+                            className="delete-button"
+                            onClick={() => handleDeleteTask(taskData.id)}
+                          >
+                            <CgTrash size={15} />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No tasks found.</p>
-          )}
-        </div>
+                  {selectedTaskId === taskData.id && !taskData.completed && (
+                    <div className="note-container">
+                    <textarea
+                      className="note-input"
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      placeholder="Note"
+                    />
+                    <button className="note-save-button" onClick={handleSaveNote}>
+                      <BiSolidSave size={15} />
+                    </button>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No tasks found.</p>
+        )}
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default TodoForm;
