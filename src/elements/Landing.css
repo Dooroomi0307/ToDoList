@@ -1,8 +1,7 @@
 .landing-container {
   display:flex;
   flex-direction:column;
-  background-color: #00B4D8;
-  padding: 20px;
+  background-color: rgba(27, 148, 212, 0.4);
   border-radius: 10px;
   height: 80vh;
   margin: 0;
@@ -27,8 +26,8 @@
   border-radius: 4px;
   font-size: 16px;
   text-align: center;
+  color: #465b68;
 }
-
 
 .create-button {
   margin-top: 20px;

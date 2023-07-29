@@ -13,6 +13,9 @@ const TodoForm = ({ groupID, onClose }) => {
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [note, setNote] = useState("");
 
+  //Fetch Firebase data
+  //Retrive collectionID 'groups' and its sub collection 'tasks'.
+  //groupID (=doc.id) is going to be used to keyword for directs specific document ID.
   useEffect(() => {
     const subscribe = db
       .collection("groups")
@@ -29,12 +32,19 @@ const TodoForm = ({ groupID, onClose }) => {
     return () => subscribe();
   }, [groupID]);
 
+  //Navigate back to landing page
+  const handleGoBack = () => {
+    onClose();
+  };
+
+  //Add task component
   const handleAddTask = () => {
     if (groupID && task) {
       db.collection("groups")
         .doc(groupID)
         .collection("tasks")
-        .add({ task, completed: false, note: "" }) // Initialize note as an empty string
+        //when user clicks save button, fields 'task', 'note', and 'timestamp' will be saved with unique tasksID.
+        .add({ task, completed: false, note: "", timestamp: Date.now() })
         .then(() => {
           setTask("");
         })
@@ -46,12 +56,15 @@ const TodoForm = ({ groupID, onClose }) => {
     }
   };
 
+  //Edit task component
   const handleEditTask = (taskId, newTask) => {
     db.collection("groups")
       .doc(groupID)
       .collection("tasks")
       .doc(taskId)
+      //newTask is the new text that is typed in task input box
       .update({ task: newTask })
+      //change back to non-editable mode
       .then(() => {
         setEditTaskId(null);
       })
@@ -60,6 +73,7 @@ const TodoForm = ({ groupID, onClose }) => {
       });
   };
 
+  //Delete task component
   const handleDeleteTask = (taskId) => {
     db.collection("groups")
       .doc(groupID)
@@ -71,11 +85,13 @@ const TodoForm = ({ groupID, onClose }) => {
       });
   };
 
+  //Task status component; checked checkbox changes status to completed
   const handleTaskCompletion = (taskId, completed) => {
     const updatedTasks = tasks.map((taskData) =>
       taskData.id === taskId ? { ...taskData, completed: !completed } : taskData
     );
 
+    //when checkbox is cliekd, update task status to 'completed'
     setTasks(updatedTasks);
 
     db.collection("groups")
@@ -88,23 +104,24 @@ const TodoForm = ({ groupID, onClose }) => {
       });
   };
 
-  const handleGoBack = () => {
-    onClose();
-  };
-
+  //Open Note component
   const handleTaskClick = (taskId, event) => {
+    //gets input from task-text
     if (event.target.classList.contains('task-text')) {
       setSelectedTaskId(taskId);
+      //directs selected task's ID
       const selectedTask = tasks.find((taskData) => taskData.id === taskId);
       setNote(selectedTask.note || "");
     }
   };
 
+  //Note save component
   const handleSaveNote = () => {
     db.collection("groups")
       .doc(groupID)
       .collection("tasks")
       .doc(selectedTaskId)
+      //update 'note' field in 'task'collection
       .update({ note })
       .then(() => {
         setSelectedTaskId(null);
@@ -114,11 +131,20 @@ const TodoForm = ({ groupID, onClose }) => {
       });
   };
 
+  //Sort tasks by newest to oldest
+  //Sort tasks by completed and incompleted
+  const compareTimestamps = (taskA, taskB) => {
+    return taskB.timestamp - taskA.timestamp;
+  };
+
   const sortedTasks = [
-    ...tasks.filter((taskData) => !taskData.completed),
+    ...tasks
+      .filter((taskData) => !taskData.completed)
+      .sort(compareTimestamps),
     ...tasks.filter((taskData) => taskData.completed),
   ];
 
+  //html
   return (
     <div className="page-container">
       <button className="home-button" onClick={handleGoBack}>
@@ -160,6 +186,7 @@ const TodoForm = ({ groupID, onClose }) => {
                       checked={taskData.completed}
                       onChange={() => handleTaskCompletion(taskData.id, taskData.completed)}
                     />
+                    <label htmlFor="custom-checkbox"></label> 
                   </div>
                   <div className="task-text">
                     {editTaskId === taskData.id ? (
@@ -178,7 +205,6 @@ const TodoForm = ({ groupID, onClose }) => {
                   </div>
                   {taskData.completed ? (
                     <div className="button-group">
-                      {/* Keep the delete button for completed tasks */}
                       <button
                         className="delete-button"
                         onClick={() => handleDeleteTask(taskData.id)}
@@ -213,27 +239,27 @@ const TodoForm = ({ groupID, onClose }) => {
                   )}
                   {selectedTaskId === taskData.id && !taskData.completed && (
                     <div className="note-container">
-                    <textarea
-                      className="note-input"
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      placeholder="Note"
-                    />
-                    <button className="note-save-button" onClick={handleSaveNote}>
-                      <BiSolidSave size={15} />
-                    </button>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No tasks found.</p>
-        )}
+                      <textarea
+                        className="note-input"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder="Note"
+                      />
+                      <button className="note-save-button" onClick={handleSaveNote}>
+                        <BiSolidSave size={15} />
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No tasks found.</p>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default TodoForm;

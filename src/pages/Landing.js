@@ -9,7 +9,7 @@ const Landing = () => {
   const [message, setMessage] = useState("");
   const [showTodoForm, setShowTodoForm] = useState(false);
 
-  //this function handles group creation
+  //Create group component
   const handleCreateGroup = () => {
     if (groupID) {
       // Check if the groupID already exists
@@ -19,7 +19,7 @@ const Landing = () => {
         .then((doc) => {
           if (doc.exists) {
             // If Group already exists
-            setMessage(`Please choose a different group ID.`);
+            setMessage(`Please choose a different group ID`);
           } else {
             // If Group does not exists
             db.collection("groups")
@@ -43,7 +43,7 @@ const Landing = () => {
     }
   };
 
-  //this function handles group joining
+  //Join group component
   const handleJoinGroup = () => {
     if (groupID) {
       db.collection("groups")
@@ -65,6 +65,7 @@ const Landing = () => {
     }
   };
 
+  //html
   return (
     <div className="landing-container">
       <div className="todo-container">
