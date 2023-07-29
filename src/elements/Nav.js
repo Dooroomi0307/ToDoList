@@ -4,9 +4,7 @@ function Nav(){
  
   return <nav className="nav">
     <ul>
-      <li>
-        <CustomLink to="/">To-Do</CustomLink>
-      </li>
+      
     </ul>
   </nav>
   

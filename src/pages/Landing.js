@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ReactDOM from 'react-dom';
 import db from "../firebase.js";
 import TodoForm from "./TodoForm";
+import "../elements/Landing.css";
+import Logo from "../elements/logo-no-background.png";
 
 const Landing = () => {
   const [groupID, setGroupID] = useState("");
   const [message, setMessage] = useState("");
+  const [showTodoForm, setShowTodoForm] = useState(false);
 
   //this function handles group creation
   const handleCreateGroup = () => {
@@ -26,7 +27,7 @@ const Landing = () => {
               .set({ groupID: groupID })
               .then(() => {
                 setMessage(`Group "${groupID}" has been created`);
-                openTodoFormWindow();
+                setShowTodoForm(true);
               })
               .catch((error) => {
                 setMessage(`Error creating group: ${error.message}`);
@@ -42,7 +43,7 @@ const Landing = () => {
     }
   };
 
-  //this function handles group joining 
+  //this function handles group joining
   const handleJoinGroup = () => {
     if (groupID) {
       db.collection("groups")
@@ -50,7 +51,7 @@ const Landing = () => {
         .get()
         .then((doc) => {
           if (doc.exists) {
-            openTodoFormWindow();
+            setShowTodoForm(true);
           } else {
             setMessage(`Group "${groupID}" does not exist`);
           }
@@ -64,40 +65,29 @@ const Landing = () => {
     }
   };
 
-  //this function opens group's to-do list
-  const openTodoFormWindow = () => {
-    const newWindow = window.open("", "_blank");
-    if (newWindow) {
-      //className = 'todo-form'
-      newWindow.document.title = "To-Do Form";
-      newWindow.document.body.innerHTML = "<div id='todo-form'></div>";
+  return (
+    <div className="landing-container">
+      {!showTodoForm && <img src={Logo} alt="Logo" className="logo" />}
 
-      const todoFormContainer = newWindow.document.getElementById("todo-form");
-
-      //renders TodoForm page
-      ReactDOM.render(
+      {showTodoForm ? (
         <TodoForm
           groupID={groupID}
-          onClose={() => newWindow.close()}
-        />,
-        todoFormContainer
-      );
-    }
-  };
-
-  return (
-    <div>
-      <h1>Welcome</h1>
-      <input
-        type="text"
-        value={groupID}
-        onChange={(e) => setGroupID(e.target.value)}
-        placeholder="Enter Group ID"
-      />
-      <br />
-      <button onClick={handleCreateGroup}>Create Group</button>
-      <button onClick={handleJoinGroup}>Join Group</button>
-      <p>{message}</p>
+          onClose={() => setShowTodoForm(false)}
+        />
+      ) : (
+        <div className="group-input">
+          <input
+            type="text"
+            value={groupID}
+            onChange={(e) => setGroupID(e.target.value)}
+            placeholder="Enter Group ID"
+          />
+          <br />
+          <button className="create-button" onClick={handleCreateGroup}>Create Group</button>
+          <button className="join-button" onClick={handleJoinGroup}>Join Group</button>
+          <p className="group-msg">{message}</p>
+        </div>
+      )}
     </div>
   );
 };

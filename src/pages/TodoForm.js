@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
-import db from "../firebase";
+import React, { useState, useEffect } from "react"
+import db from "../firebase"
+import "../elements/TodoForm.css"
+import { CgMathPlus,CgTrash, CgPen, CgHomeAlt} from "react-icons/cg";
 
 const TodoForm = ({ groupID, onClose }) => {
   //manage state in a functional component
@@ -9,6 +11,22 @@ const TodoForm = ({ groupID, onClose }) => {
   const [editTaskId, setEditTaskId] = useState(null);
   const [editedTask, setEditedTask] = useState("");
 
+  useEffect(() => {
+    const subscribe = db
+      .collection("groups")
+      .doc(groupID)
+      .collection("tasks")
+      .onSnapshot((snapshot) => {
+        const tasksData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setTasks(tasksData);
+      });
+
+    return () => subscribe();
+  }, [groupID]);
+
   //this function handles adding task
   const handleAddTask = () => {
     if (groupID && task) {
@@ -17,7 +35,6 @@ const TodoForm = ({ groupID, onClose }) => {
         .collection("tasks")
         .add({ task })
         .then(() => {
-          setMessage("Task added successfully!");
           setTask("");
         })
         .catch((error) => {
@@ -36,7 +53,6 @@ const TodoForm = ({ groupID, onClose }) => {
       .doc(taskId)
       .update({ task: newTask })
       .then(() => {
-        setMessage("Task updated successfully!");
         setEditTaskId(null); // Clear the edit mode after successful update
       })
       .catch((error) => {
@@ -52,75 +68,74 @@ const TodoForm = ({ groupID, onClose }) => {
       .doc(taskId)
       .delete()
       .then(() => {
-        setMessage("Task deleted successfully!");
       })
       .catch((error) => {
         setMessage(`Error deleting task: ${error.message}`);
       });
   };
 
-  //Fetching data into Firebase
-  useEffect(() => {
-    const subscribe = db
-      .collection("groups")
-      .doc(groupID)
-      .collection("tasks")
-      .onSnapshot((snapshot) => {
-        const tasksData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setTasks(tasksData);
-      });
+  const handleGoBack = () => {
+    onClose(); // Close the current TodoForm (go back to Landing component)
+  };
 
-    return () => subscribe();
-  }, [groupID]);
+  
 
   return (
-    <div>
-      <h2>Group ID: {groupID}</h2>
-      <input
-        type="text"
-        value={task}
-        onChange={(e) => setTask(e.target.value)}
-        placeholder="Enter Task"
-      />
-      <button onClick={handleAddTask}>Add Task</button>
-      <button onClick={onClose}>Close</button>
-      <p>{message}</p>
-      <h3>Tasks:</h3>
-      {tasks.length > 0 ? (
-        <ul>
-          {tasks.map((taskData) => (
-            <li key={taskData.id}>
-              {editTaskId === taskData.id ? ( // Show input box if editing this task
-                <>
-                  <input
-                    type="text"
-                    value={editedTask}
-                    onChange={(e) => setEditedTask(e.target.value)}
-                  />
-                  <button
-                    onClick={() => handleEditTask(taskData.id, editedTask)}
-                  >
-                    Save
-                  </button>
-                </>
-              ) : (
-                <>
-                  {taskData.task}{" "}
-                  <button onClick={() => setEditTaskId(taskData.id)}>Edit</button>{" "}
-                  <button onClick={() => handleDeleteTask(taskData.id)}>Delete</button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No tasks found.</p>
-      )}
+    <div className="page-container">
+      {/* The "page-container" wraps the whole page */}
+      <button className="home-button" onClick={handleGoBack}><CgHomeAlt/></button>
+      <div className="main-container">
+          <div className="group-name-container">
+            <h2 className="group-name">{groupID}</h2>
+          </div>
+          
+            <div className="search-container">
+          <input
+            type="text"
+            value={task}
+            onChange={(e) => setTask(e.target.value)}
+            placeholder="Enter Task"
+          />
+          <button onClick={handleAddTask}>Add Task</button>
+          <p>{message}</p>
+          </div>
+          <div className="todo-container">
+          <h3>Tasks:</h3>
+          {tasks.length > 0 ? (
+            <ul>
+              {tasks.map((taskData) => (
+                <li key={taskData.id}>
+                  {editTaskId === taskData.id ? ( // Show input box if editing this task
+                    <>
+                      <input
+                        type="text"
+                        value={editedTask}
+                        onChange={(e) => setEditedTask(e.target.value)}
+                      />
+                      <button
+                        onClick={() => handleEditTask(taskData.id, editedTask)}
+                      >
+                        Save
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {taskData.task}{" "}
+                      <button className="edit-button" onClick={() => setEditTaskId(taskData.id)}><CgPen /></button>{" "}
+                      <button className="delete-button" onClick={() => handleDeleteTask(taskData.id)}><CgTrash /></button>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No tasks found.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
+  
 };
 
 export default TodoForm;

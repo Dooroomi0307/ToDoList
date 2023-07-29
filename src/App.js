@@ -1,22 +1,38 @@
 import { Route, Routes } from "react-router-dom"
+import {useRef, useEffect, useState} from 'react'
 import Nav from "./elements/Nav"
-
 import Landing from "./pages/Landing"
-import './elements/App.css'
-
+import Splash from "./pages/Splash"
+import "./elements/App.css"
 
 //Render with navigation
 function App() {
-  return(
-  <>
-		<Nav />
-			<div className="container">
-				<Routes>
-					<Route path="" element={<Landing />}/>
-				</Routes>
-			</div>
-	</>
-  )
-};
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		setTimeout(()=>setLoading(false), 4500);
+	})
+
+
+
+  return (
+    <>
+      {loading ? ( // Show the SplashScreen if loading is true
+        <Splash />
+      ) : (
+        <>
+          <div className="main">
+          </div>
+          <Nav />
+          <div className="container">
+            <Routes>
+              <Route path="" element={<Landing />} />
+            </Routes>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
 
 export default App;

@@ -1,0 +1,43 @@
+body{
+  align-items: center;
+  vertical-align: center;
+}
+.splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #0077B6; 
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; 
+  animation: fadeIn 1.5s ease-in-out;  
+}
+
+.logo {
+  width: 200px; /* Set the width of the image as per your requirement */
+  height: auto; /* Let the height scale proportionally */
+  margin-bottom: 20px; /* Add some spacing between the image and the "Loading..." text */
+}
+
+/* Customize the loading text or animation if needed */
+h1 {
+  font-size: 24px;
+  color: #333;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+
+
